@@ -23,6 +23,10 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
     ListView l;
     EditText S;
+    ArrayAdapter<String> adapter;
+    InputStream stream;
+    BufferedReader in;
+    ArrayList<String> lines;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,24 +37,23 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-            InputStream stream = getBaseContext().getAssets().open("packages.txt");
-            BufferedReader in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+            stream = getBaseContext().getAssets().open("packages.txt");
+            in = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
             String str;
-            ArrayList<String> lines = new ArrayList<>();
-
+            lines = new ArrayList<>();
             while ((str = in.readLine()) != null ) {
                 lines.add(str);
             }
             in.close();
             l = (ListView) findViewById(R.id.List);
-            final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.item, R.id.textView, lines);
+            adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.item, R.id.packageName, lines);
             l.setAdapter(adapter);
             l.setTextFilterEnabled(true);
             l.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     AlertDialog.Builder Bld=new AlertDialog.Builder(MainActivity.this);
-                    Bld.setMessage("To install this package , in terminal write : \n sudo apt-get install "+l.getItemAtPosition(position).toString());
+                    Bld.setMessage("To install this package , in terminal write : \nsudo apt-get install "+l.getItemAtPosition(position).toString());
                     Bld.setCancelable(false);
                     Bld.setPositiveButton("OK",new DialogInterface.OnClickListener(){public void onClick(DialogInterface dialog,int id){dialog.cancel();}});
                     AlertDialog A=Bld.create();
@@ -71,16 +74,21 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void afterTextChanged(Editable s) {
+                public void afterTextChanged(Editable editable) {
 
                 }
+
+
             });
 
         } catch (IOException e) {
             Log.i("exception",e.toString());
         }
-
-
         }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+    }
 }
